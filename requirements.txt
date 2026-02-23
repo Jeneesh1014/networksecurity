@@ -1,15 +1,16 @@
+python-dotenv
 pandas
 numpy
-seaborn
-matplotlib
+pymongo
+certifi
+pymongo[srv]
 scikit-learn
-scipy
-statsmodels
-xgboost
-lightgbm
-catboost
 mlflow
-dill
-Flask
-python-dotenv
-# -e .
+pyaml
+dagshub
+fastapi
+uvicorn
+python-multipart
+
+
+##-e .
