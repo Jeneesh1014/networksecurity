@@ -1,0 +1,15 @@
+pandas
+numpy
+seaborn
+matplotlib
+scikit-learn
+scipy
+statsmodels
+xgboost
+lightgbm
+catboost
+mlflow
+dill
+Flask
+python-dotenv
+# -e .
