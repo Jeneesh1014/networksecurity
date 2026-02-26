@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Predicted Data</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --bg-elevated: #020617;
+            --accent: #38bdf8;
+            --accent-soft: rgba(56, 189, 248, 0.12);
+            --border-subtle: rgba(148, 163, 184, 0.4);
+            --text-main: #e5e7eb;
+            --text-muted: #9ca3af;
+            --danger: #f97373;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #1e293b 0, #020617 45%, #000 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .card {
+            background: radial-gradient(circle at top left, #0b1120, #020617 55%, #000 100%);
+            border-radius: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            box-shadow:
+                0 28px 80px rgba(15, 23, 42, 0.9),
+                0 0 0 1px rgba(15, 23, 42, 0.7);
+            overflow: hidden;
+            backdrop-filter: blur(18px);
+        }
+
+        .card-header {
+            padding: 18px 22px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pill {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 30% 20%, #38bdf8, #0ea5e9 45%, #0369a1 100%);
+            box-shadow:
+                0 0 0 1px rgba(125, 211, 252, 0.6),
+                0 0 35px rgba(56, 189, 248, 0.65);
+        }
+
+        .pill span {
+            font-size: 18px;
+            color: #e0f2fe;
+        }
+
+        h1 {
+            font-size: 20px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .badge {
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: #7dd3fc;
+            background: rgba(8, 47, 73, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            box-shadow: 0 0 20px rgba(8, 47, 73, 0.7);
+        }
+
+        .card-body {
+            padding: 4px 0 2px;
+        }
+
+        .table-wrapper {
+            max-height: 70vh;
+            overflow: auto;
+            padding: 4px 4px 10px;
+        }
+
+        /* Base table styling – affects the rendered {{ table }} */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            background: transparent;
+            color: var(--text-main);
+            font-size: 13px;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        thead tr {
+            background: linear-gradient(to right, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.9));
+        }
+
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(30, 64, 175, 0.55);
+            white-space: nowrap;
+        }
+
+        th {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 11px;
+            color: #cbd5f5;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.9);
+        }
+
+        tbody tr:nth-child(even) {
+            background: radial-gradient(circle at left, rgba(30, 64, 175, 0.25), transparent 60%);
+        }
+
+        tbody tr:nth-child(odd) {
+            background: radial-gradient(circle at right, rgba(8, 47, 73, 0.22), transparent 60%);
+        }
+
+        tbody tr:hover {
+            background: linear-gradient(to right, rgba(30, 64, 175, 0.9), rgba(8, 47, 73, 0.95));
+            transform: translateY(-1px);
+            box-shadow:
+                0 8px 22px rgba(15, 23, 42, 0.9),
+                0 0 0 1px rgba(37, 99, 235, 0.7);
+        }
+
+        tbody tr {
+            transition:
+                background 140ms ease-out,
+                transform 140ms ease-out,
+                box-shadow 140ms ease-out;
+        }
+
+        td {
+            color: #e5e7eb;
+        }
+
+        /* Optional highlighting for "probability" / score-like columns by name */
+        th:nth-child(n*0) {} /* keep linter quiet */
+
+        td:nth-child(1),
+        td:last-child {
+            font-variant-numeric: tabular-nums;
+        }
+
+        td.positive,
+        td[data-score="high"] {
+            color: #4ade80;
+        }
+
+        td.negative,
+        td[data-score="low"] {
+            color: var(--danger);
+        }
+
+        /* Scrollbar styling */
+        .table-wrapper::-webkit-scrollbar {
+            width: 9px;
+            height: 9px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #38bdf8, #0ea5e9);
+            border-radius: 999px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, #0ea5e9, #0369a1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+
+            h1 {
+                font-size: 18px;
+            }
+
+            .subtitle {
+                font-size: 12px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="card">
+            <div class="card-header">
+                <div class="title-group">
+                    <div class="pill">
+                        <span>Δ</span>
+                    </div>
+                    <div>
+                        <h1>Predicted Data</h1>
+                        <div class="subtitle">Model outputs rendered in a clean, readable table.</div>
+                    </div>
+                </div>
+                <span class="badge">Live Predictions</span>
+            </div>
+            <div class="card-body">
+                <div class="table-wrapper">
+                    {{ table | safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
